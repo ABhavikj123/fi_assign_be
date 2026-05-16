@@ -59,7 +59,12 @@ const getSharedArchiveMap = async (userId: string, noteIds: string[]) => {
       AND note_id = ANY(${noteIds})
   `;
 
-  return new Map(rows.map((row: SharedArchiveRow) => [row.note_id, row.is_archived]));
+  return new Map<string, boolean>(
+    rows.map((row: SharedArchiveRow) => [
+      row.note_id,
+      row.is_archived
+    ])
+  );
 };
 
 const getUserArchiveState = (
