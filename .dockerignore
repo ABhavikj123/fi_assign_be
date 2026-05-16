@@ -10,5 +10,4 @@ README.md
 .idea
 *.log
 coverage
-prisma/migrations
 .DS_Store
