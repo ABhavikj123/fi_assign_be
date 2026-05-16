@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  notes        Note[]
+  shares       NoteShare[] @relation("SharedWithUser")
+
+  @@map("users")
+}
+
+model Note {
+  id         String      @id @default(uuid())
+  ownerId    String      @map("owner_id")
+  title      String
+  content    String
+  isArchived Boolean     @default(false) @map("is_archived")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  owner      User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  shares     NoteShare[]
+
+  @@index([ownerId])
+  @@index([isArchived])
+  @@map("notes")
+}
+
+model NoteShare {
+  id               String   @id @default(uuid())
+  noteId           String   @map("note_id")
+  sharedWithUserId String   @map("shared_with_user_id")
+  isArchived       Boolean  @default(false) @map("is_archived")
+  createdAt        DateTime @default(now()) @map("created_at")
+  note             Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  sharedWithUser   User     @relation("SharedWithUser", fields: [sharedWithUserId], references: [id], onDelete: Cascade)
+
+  @@unique([noteId, sharedWithUserId])
+  @@index([sharedWithUserId])
+  @@index([sharedWithUserId, isArchived])
+  @@map("note_shares")
+}
