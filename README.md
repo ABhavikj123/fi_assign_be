@@ -61,5 +61,4 @@ GET    /openapi.json
 
 ```bash
 npm run build
-npm test
 ```
